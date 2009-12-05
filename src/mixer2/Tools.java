@@ -6,12 +6,10 @@ package mixer2;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
-import java.awt.image.WritableRaster;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  *
@@ -19,79 +17,73 @@ import java.util.Set;
  */
 public class Tools {
 
+    public static void genPixelArrays(BufferedImage im1, int[] pix1Buffer,
+            BufferedImage im2, int[] pix2Buffer, int width, int height) {
+        try {
+            int size = width * height;
+            //int[] pix1Buffer = new int[size];
+            //int[] pix2Buffer = new int[size];
+            PixelGrabber pix1 = new PixelGrabber(im1, 0, 0, width, height, pix1Buffer, 0, width);
+            PixelGrabber pix2 = new PixelGrabber(im2, 0, 0, width, height, pix2Buffer, 0, width);
+            pix1.grabPixels();
+            pix2.grabPixels();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public abstract class Tool {
 
-        public void mix(BufferedImage im1, BufferedImage im2, BufferedImage imOut) {
-            long startT = 0, alocT = 0, grabber1T = 0, grabber2T = 0, grab1T = 0, grab2T = 0, loopT = 0, setDataT = 0;
-            try {
-                //System.out.println("Typy: im1: " + im1.getType() + " im2: " + im2.getType() + " imOut: " + imOut.getType());
-                startT = new Date().getTime();
-                WritableRaster outRaster = imOut.getRaster();
-                int width = Math.min(im1.getWidth(), im2.getWidth());
-                int height = Math.min(im1.getHeight(), im2.getHeight());
-                int size = width * height;
-                int[] pix1Buffer = new int[size];
-                int[] pix2Buffer = new int[size];
-                //int[] outBuffer = new int[size];
-                alocT = new Date().getTime();
-                PixelGrabber pix1 = new PixelGrabber(im1, 0, 0, width, height, pix1Buffer, 0, width);
-                grabber1T = new Date().getTime();
-                PixelGrabber pix2 = new PixelGrabber(im2, 0, 0, width, height, pix2Buffer, 0, width);
-                grabber2T = new Date().getTime();
-                pix1.grabPixels();
-                grab1T = new Date().getTime();
-                pix2.grabPixels();
-                grab2T = new Date().getTime();
-                int r1 = 0;
-                int g1 = 0;
-                int b1 = 0;
-                int r2 = 0;
-                int g2 = 0;
-                int b2 = 0;
-                int outpixel = 0;
-                int inpixel1 = 0;
-                int inpixel2 = 0;
-                int tmp = 0;
-                int offset = 0;
-                for (int i = 0; i < size; ++i) {
-                    inpixel1 = pix1Buffer[i];
-                    inpixel2 = pix2Buffer[i];
-                    outpixel = 0;
-                    for (offset = 0; offset < 25; offset += 8) {
-                        tmp = mixedVal((inpixel1 >> offset) & 0xff, (inpixel2 >> offset) & 0xff);
-                        if (tmp > 255) {
-                            tmp = 255;
-                        } else if (tmp < 0) {
-                            tmp = 0;
-                        }
-                        outpixel |= tmp << offset;
-                    }
-                    pix1Buffer[i] = outpixel;
-                }
-                loopT = new Date().getTime();
-                outRaster.setDataElements(0, 0, width, height, pix1Buffer);
-                setDataT = new Date().getTime();
+        public void mix(int[] pix1Buffer, int[] pix2Buffer, int[] outBuffer, int size) {
 
-                System.out.println("Czasy [ms]:" +
-                        "\nAlokacja:                    " + (alocT - startT) +
-                        "\nStworzenie PixeGrabbera 1:   " + (grabber1T - alocT) +
-                        "\nStworzenie PixeGrabbera 2:   " + (grabber2T - grabber1T) +
-                        "\nGrabber 1:                   " + (grab1T - grabber2T) +
-                        "\nGrabber 2:                   " + (grab2T - grab1T) +
-                        "\nCzas petli:                  " + (loopT - grab2T) +
-                        "\nSredni czas obrotu:          " + (((double) (loopT - grab2T)) / size) +
-                        "\nUstawianie danych w bitmapie:" + (setDataT - loopT));
-            } catch (InterruptedException ex) {
-                ex.printStackTrace(System.err);
+            //System.out.println("Typy: im1: " + im1.getType() + " im2: " + im2.getType() + " imOut: " + imOut.getType());
+            //startT = new Date().getTime();
+            int r1 = 0;
+            int g1 = 0;
+            int b1 = 0;
+            int r2 = 0;
+            int g2 = 0;
+            int b2 = 0;
+            int outpixel = 0;
+            int inpixel1 = 0;
+            int inpixel2 = 0;
+            int tmp = 0;
+            int offset = 0;
+            for (int i = 0; i < size; ++i) {
+                inpixel1 = pix1Buffer[i];
+                inpixel2 = pix2Buffer[i];
+                outpixel = 0;
+                for (offset = 0; offset < 25; offset += 8) {
+                    tmp = mixedVal((inpixel1 >> offset) & 0xff, (inpixel2 >> offset) & 0xff);
+                    if (tmp > 255) {
+                        tmp = 255;
+                    } else if (tmp < 0) {
+                        tmp = 0;
+                    }
+                    outpixel |= tmp << offset;
+                }
+                outBuffer[i] = outpixel;
             }
+//                loopT = new Date().getTime();
+//                setDataT = new Date().getTime();
+
+//                System.out.println("Czasy [ms]:" +
+//                        "\nAlokacja:                    " + (alocT - startT) +
+//                        "\nStworzenie PixeGrabbera 1:   " + (grabber1T - alocT) +
+//                        "\nStworzenie PixeGrabbera 2:   " + (grabber2T - grabber1T) +
+//                        "\nGrabber 1:                   " + (grab1T - grabber2T) +
+//                        "\nGrabber 2:                   " + (grab2T - grab1T) +
+//                        "\nCzas petli:                  " + (loopT - grab2T) +
+//                        "\nSredni czas obrotu:          " + (((double) (loopT - grab2T)) / size) +
+//                        "\nUstawianie danych w bitmapie:" + (setDataT - loopT));
         }
 
         protected abstract int mixedVal(int a, int b);
     }
-    private Map<String, Tool> tools;
+    private SortedMap<String, Tool> tools;
 
     public Tools() {
-        tools = new HashMap<String, Tool>();
+        tools = new TreeMap<String, Tool>();
 
         tools.put("Multiply", new Tool() {
 

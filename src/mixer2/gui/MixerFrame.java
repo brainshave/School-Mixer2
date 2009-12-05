@@ -15,6 +15,7 @@ import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
@@ -35,6 +36,8 @@ public class MixerFrame extends javax.swing.JFrame {
     private Tools.Tool tool;
     private ImagePanel imagePanel;
     private BufferedImage image1, image2;
+    private int[] im1buff, im2buff, outBuff;
+    private int width, height;
 
     /** Creates new form MixerFrame */
     public MixerFrame() {
@@ -47,9 +50,10 @@ public class MixerFrame extends javax.swing.JFrame {
         jScrollPane1.setViewportView(imagePanel);
 
         // Dodawanie narzedzi:
-        for (final Entry<String, Tool> entry: tools.getAll()) {
+        for (final Entry<String, Tool> entry : tools.getAll()) {
             JRadioButton button = new JRadioButton(entry.getKey());
             button.addActionListener(new ActionListener() {
+
                 public void actionPerformed(ActionEvent e) {
                     tool = entry.getValue();
                     mixImages(true);
@@ -65,6 +69,7 @@ public class MixerFrame extends javax.swing.JFrame {
             FileDialog dialog = new FileDialog(this, "Wybierz plik", FileDialog.LOAD);
             dialog.setModal(true);
             dialog.setVisible(true);
+            //if(dialog.)
             String path = dialog.getDirectory() + dialog.getFile();
             System.out.println("Path: " + path);
             File f = new File(path);
@@ -75,24 +80,48 @@ public class MixerFrame extends javax.swing.JFrame {
         return new SimpleEntry(null, null);
     }
 
+    public void reBuffImages() {
+        if(image1 == null || image2 == null) return;
+        width = Math.min(image1.getWidth(), image2.getWidth());
+        height = Math.min(image1.getHeight(), image2.getHeight());
+        int size = width * height;
+        if(im1buff == null || im1buff.length < size)
+            im1buff = new int [size];
+        if(im2buff == null || im2buff.length < size)
+            im2buff = new int [size];
+        if(outBuff == null || outBuff.length < size)
+            outBuff = new int [size];
+        imagePanel.resizeImage(width, height);
+        Tools.genPixelArrays(image1, im1buff, image2, im2buff, width, height);
+    }
+
     public void mixImages(boolean warnings) {
         if (tool == null) {
             return;
-        } else if (image1 == null) {
-            if(warnings) JOptionPane.showMessageDialog(this, "Nie wybrano obrazka 1", "Powiadomienie", JOptionPane.WARNING_MESSAGE);
+        } else if (im1buff == null) {
+            if (warnings) {
+                JOptionPane.showMessageDialog(this, "Nie wybrano obrazka 1", "Powiadomienie", JOptionPane.WARNING_MESSAGE);
+            }
             return;
-        } else if (image2 == null) {
-            if(warnings) JOptionPane.showMessageDialog(this, "Nie wybrano obrazka 2", "Powiadomienie", JOptionPane.WARNING_MESSAGE);
+        } else if (im2buff == null) {
+            if (warnings) {
+                JOptionPane.showMessageDialog(this, "Nie wybrano obrazka 2", "Powiadomienie", JOptionPane.WARNING_MESSAGE);
+            }
             return;
         }
+        
+        //Dimension dim = new Dimension(Math.min(image1.getWidth(), image2.getWidth()), Math.min(image1.getHeight(), image2.getHeight()));
+        tool.mix(im1buff, im2buff, outBuff, width * height);
+        WritableRaster outRaster = imagePanel.getImage().getRaster();
 
-        tool.mix(image1, image2, imagePanel.getImage());
+        outRaster.setDataElements(0, 0, width, height, outBuff);
         //jScrollPane1.getViewport().setBounds(0, 0, Math.min(image1.getWidth(), image2.getWidth()), Math.min(image1.getHeight(), image2.getHeight()));
         //jScrollPane1.re
-        Dimension dim = new Dimension(Math.min(image1.getWidth(), image2.getWidth()), Math.min(image1.getHeight(), image2.getHeight()));
-        imagePanel.setMaximumSize(dim);
-        imagePanel.setMinimumSize(dim);
-        imagePanel.setSize(dim);
+
+        //imagePanel.setMaximumSize(dim);
+        //imagePanel.setMinimumSize(dim);
+        //imagePanel.setSize(width, height);
+        imagePanel.repaint();
     }
 
     /** This method is called from within the constructor to
@@ -146,6 +175,7 @@ public class MixerFrame extends javax.swing.JFrame {
         if (entry.getValue() != null && entry.getKey() != null) {
             image1 = entry.getValue();
             image1Button.setText(entry.getKey());
+            reBuffImages();
             mixImages(false);
         }
     }//GEN-LAST:event_image1ButtonActionPerformed
@@ -155,6 +185,7 @@ public class MixerFrame extends javax.swing.JFrame {
         if (entry.getValue() != null && entry.getKey() != null) {
             image2 = entry.getValue();
             image2Button.setText(entry.getKey());
+            reBuffImages();
             mixImages(false);
         }
     }//GEN-LAST:event_image2ButtonActionPerformed
