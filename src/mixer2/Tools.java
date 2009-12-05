@@ -149,7 +149,7 @@ public class Tools {
             @Override
             public int mixedVal(int a, int b) {
                 return a < 128
-                        ? (a * b) >> 8 //2 * a * b
+                        ? (a * b) >> 7 //2 * a * b
                         : 255 - (((255 - a) * (255 - b)) >> 7);// 255 - 2 * (255 - a) * (255 - b);
             }
         });

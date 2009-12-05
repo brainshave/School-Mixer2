@@ -93,6 +93,7 @@ public class MixerFrame extends javax.swing.JFrame {
             outBuff = new int [size];
         imagePanel.resizeImage(width, height);
         Tools.genPixelArrays(image1, im1buff, image2, im2buff, width, height);
+        System.gc();
     }
 
     public void mixImages(boolean warnings) {
