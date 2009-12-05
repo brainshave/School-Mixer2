@@ -47,7 +47,7 @@ public class MixerFrame extends javax.swing.JFrame {
         image2 = null;
         imagePanel = new ImagePanel();
         initComponents();
-        jScrollPane1.setViewportView(imagePanel);
+        //jScrollPane1.setViewportView(imagePanel);
 
         // Dodawanie narzedzi:
         for (final Entry<String, Tool> entry : tools.getAll()) {
@@ -134,7 +134,7 @@ public class MixerFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         toolsGroup = new javax.swing.ButtonGroup();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane1 = new javax.swing.JScrollPane(imagePanel);
         toolsPanel = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         image1Button = new javax.swing.JButton();

@@ -5,6 +5,7 @@
 
 package mixer2.gui;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
@@ -32,7 +33,8 @@ public class ImagePanel extends JPanel{
 
     public void resizeImage(int width, int height) {
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        this.setSize(width, height);
         System.gc();
+        this.setPreferredSize(new Dimension(width, height));
+        this.revalidate();
     }
 }
