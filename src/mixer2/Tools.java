@@ -167,8 +167,8 @@ public class Tools {
             @Override
             public int mixedVal(int a, int b) {
                 return b < 128
-                        ? ((a * b) >> 8) + ((a * a * (255 - 2 * b)) >> 16)//2 * a * b + a * a * (255 - 2 * b)
-                        : ((((int) Math.sqrt(a)) * (2 * b - 255)) >> 4) + ((a * (255 - b)) >> 8);//2 * a * (255 - b);
+                        ? ((a * b) >> 7) + ((a * a * (255 - 2 * b)) >> 16)//2 * a * b + a * a * (255 - 2 * b)
+                        : ((((int) Math.sqrt(a)) * (2 * b - 255)) >> 4) + ((a * (255 - b)) >> 7 );//2 * a * (255 - b);
             }
         });
         tools.put("Color Dodge", new Tool() {
