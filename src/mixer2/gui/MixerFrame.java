@@ -136,6 +136,7 @@ public class MixerFrame extends javax.swing.JFrame {
         toolsGroup = new javax.swing.ButtonGroup();
         jScrollPane1 = new javax.swing.JScrollPane();
         toolsPanel = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
         image1Button = new javax.swing.JButton();
         image2Button = new javax.swing.JButton();
 
@@ -146,7 +147,11 @@ public class MixerFrame extends javax.swing.JFrame {
         jScrollPane1.setPreferredSize(new java.awt.Dimension(500, 500));
         getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
+        toolsPanel.setMinimumSize(new java.awt.Dimension(10, 0));
         toolsPanel.setLayout(new javax.swing.BoxLayout(toolsPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        getContentPane().add(toolsPanel, java.awt.BorderLayout.WEST);
+
+        jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.LINE_AXIS));
 
         image1Button.setText("Obrazek 1");
         image1Button.addActionListener(new java.awt.event.ActionListener() {
@@ -154,7 +159,7 @@ public class MixerFrame extends javax.swing.JFrame {
                 image1ButtonActionPerformed(evt);
             }
         });
-        toolsPanel.add(image1Button);
+        jPanel1.add(image1Button);
 
         image2Button.setText("Obrazek 2");
         image2Button.addActionListener(new java.awt.event.ActionListener() {
@@ -162,9 +167,9 @@ public class MixerFrame extends javax.swing.JFrame {
                 image2ButtonActionPerformed(evt);
             }
         });
-        toolsPanel.add(image2Button);
+        jPanel1.add(image2Button);
 
-        getContentPane().add(toolsPanel, java.awt.BorderLayout.WEST);
+        getContentPane().add(jPanel1, java.awt.BorderLayout.NORTH);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -204,6 +209,7 @@ public class MixerFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton image1Button;
     private javax.swing.JButton image2Button;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.ButtonGroup toolsGroup;
     private javax.swing.JPanel toolsPanel;
