@@ -6,6 +6,7 @@ package mixer2;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
+import java.util.Date;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
@@ -35,9 +36,7 @@ public class Tools {
     public abstract class Tool {
 
         public void mix(int[] pix1Buffer, int[] pix2Buffer, int[] outBuffer, int size) {
-
-            //System.out.println("Typy: im1: " + im1.getType() + " im2: " + im2.getType() + " imOut: " + imOut.getType());
-            //startT = new Date().getTime();
+            long startT = new Date().getTime();
             int r1 = 0;
             int g1 = 0;
             int b1 = 0;
@@ -64,18 +63,8 @@ public class Tools {
                 }
                 outBuffer[i] = outpixel;
             }
-//                loopT = new Date().getTime();
-//                setDataT = new Date().getTime();
-
-//                System.out.println("Czasy [ms]:" +
-//                        "\nAlokacja:                    " + (alocT - startT) +
-//                        "\nStworzenie PixeGrabbera 1:   " + (grabber1T - alocT) +
-//                        "\nStworzenie PixeGrabbera 2:   " + (grabber2T - grabber1T) +
-//                        "\nGrabber 1:                   " + (grab1T - grabber2T) +
-//                        "\nGrabber 2:                   " + (grab2T - grab1T) +
-//                        "\nCzas petli:                  " + (loopT - grab2T) +
-//                        "\nSredni czas obrotu:          " + (((double) (loopT - grab2T)) / size) +
-//                        "\nUstawianie danych w bitmapie:" + (setDataT - loopT));
+            long endT = new Date().getTime();
+            System.out.println("Czas: " + (endT - startT) + "ms dla " + size + " pikseli, srednio " + (((double)endT - startT)/size));
         }
 
         protected abstract int mixedVal(int a, int b);
