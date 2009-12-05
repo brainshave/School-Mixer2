@@ -21,9 +21,6 @@ public class Tools {
     public static void genPixelArrays(BufferedImage im1, int[] pix1Buffer,
             BufferedImage im2, int[] pix2Buffer, int width, int height) {
         try {
-            int size = width * height;
-            //int[] pix1Buffer = new int[size];
-            //int[] pix2Buffer = new int[size];
             PixelGrabber pix1 = new PixelGrabber(im1, 0, 0, width, height, pix1Buffer, 0, width);
             PixelGrabber pix2 = new PixelGrabber(im2, 0, 0, width, height, pix2Buffer, 0, width);
             pix1.grabPixels();
@@ -37,12 +34,6 @@ public class Tools {
 
         public void mix(int[] pix1Buffer, int[] pix2Buffer, int[] outBuffer, int size) {
             long startT = new Date().getTime();
-            int r1 = 0;
-            int g1 = 0;
-            int b1 = 0;
-            int r2 = 0;
-            int g2 = 0;
-            int b2 = 0;
             int outpixel = 0;
             int inpixel1 = 0;
             int inpixel2 = 0;
@@ -64,7 +55,7 @@ public class Tools {
                 outBuffer[i] = outpixel;
             }
             long endT = new Date().getTime();
-            System.out.println("Czas: " + (endT - startT) + "ms dla " + size + " pikseli, srednio " + (((double)endT - startT)/size));
+            System.out.println("Czas: " + (endT - startT) + "ms dla " + size + " pikseli, srednio " + (((double) endT - startT) / size));
         }
 
         protected abstract int mixedVal(int a, int b);
@@ -141,7 +132,7 @@ public class Tools {
 
             @Override
             public int mixedVal(int a, int b) {
-                return a + b - ((2 * a * b) >> 8);
+                return a + b - ((a * b) >> 7);
             }
         });
         tools.put("Overlay", new Tool() {
@@ -168,37 +159,28 @@ public class Tools {
             public int mixedVal(int a, int b) {
                 return b < 128
                         ? ((a * b) >> 7) + ((a * a * (255 - 2 * b)) >> 16)//2 * a * b + a * a * (255 - 2 * b)
-                        : ((((int) Math.sqrt(a)) * (2 * b - 255)) >> 4) + ((a * (255 - b)) >> 7 );//2 * a * (255 - b);
+                        : (((int) (Math.sqrt(a) * (2 * b - 255))) >> 4) + ((a * (255 - b)) >> 7);//2 * a * (255 - b);
             }
         });
         tools.put("Color Dodge", new Tool() {
 
             @Override
             public int mixedVal(int a, int b) {
-                if (b == 255) {
-                    return 255;
-                }
-                return (a << 8) / (255 - b);
+                return (a << 8) / (256 - b);
             }
         });
         tools.put("Color Burn", new Tool() {
 
             @Override
             public int mixedVal(int a, int b) {
-                if (b == 0) {
-                    return 0;
-                }
-                return 255 - ((255 - a) << 8) / b;
+                return 255 - ((255 - a) << 8) / (b + 1);
             }
         });
         tools.put("Reflect", new Tool() {
 
             @Override
             public int mixedVal(int a, int b) {
-                if (b == 255) {
-                    return 255;
-                }
-                return a * a / (255 - b);
+                return a * a / (256 - b);
             }
         });
 
