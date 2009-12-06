@@ -93,25 +93,18 @@ public class Tools {
                 return a > b ? a : b;
             }
         });
-        tools.put("Difference 1-2", new Tool() {
+        tools.put("Difference", new Tool() {
 
             @Override
             public int mixedVal(int a, int b) {
-                return a - b;
-            }
-        });
-        tools.put("Difference 2-1", new Tool() {
-
-            @Override
-            public int mixedVal(int a, int b) {
-                return b - a;
+                return Math.abs(a - b);
             }
         });
         tools.put("Additive", new Tool() {
 
             @Override
             public int mixedVal(int a, int b) {
-                return a + b - 255;
+                return a + b;
             }
         });
         tools.put("Substractive", new Tool() {
