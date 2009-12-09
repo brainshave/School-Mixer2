@@ -13,8 +13,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -35,15 +33,12 @@ public class Tools {
     }
 
     public abstract class Tool extends Thread {
-
-        public boolean running;
         private int[] buff1, buff2, buffOut;
         private int size, howMuchEffect, width, height;
         private Component objToRepaint;
         private WritableRaster raster;
 
         public Tool() {
-            running = true;
             start();
         }
 
@@ -65,15 +60,14 @@ public class Tools {
 
         @Override
         public void run() {
-            // przerwanie ew. dzialajacego watku, odpalenie z nowymi wartosciami
-            // roznica miedzy interrupted() i isInterupted()
-            while (running) {
+            while (true) {
                 try {
                     Tool.sleep(1000);
                 } catch (InterruptedException ex) {
                     do {
                         int pixels = mix(buff1, buff2, buffOut, size, howMuchEffect);
-                        int lines = pixels/width;
+                        int lines = pixels / width;
+                        lines = lines < height ? lines : height;
                         raster.setDataElements(0, 0, width, lines, buffOut);
                         objToRepaint.repaint(0, 0, width, lines);
                     } while (Tool.interrupted());
@@ -90,13 +84,13 @@ public class Tools {
             int offset = 0;
             int k = 0, i = 0, end;
             int step = 100000;
-            int incolor1, incolor1Rest;
-            while(k < size) {
+            int incolor1;
+            while (k < size) {
                 if (this.isInterrupted()) {
                     return i;
                 }
                 i = k;
-                k+=step;
+                k += step;
                 end = k < size ? k : size;
                 for (; i < end; ++i) {
                     inpixel1 = pix1Buffer[i];

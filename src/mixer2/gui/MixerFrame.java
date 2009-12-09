@@ -14,7 +14,6 @@ import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.AbstractMap.SimpleEntry;
@@ -23,7 +22,6 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import mixer2.Tools;
-import mixer2.BreakObserver;
 import mixer2.Tools.Tool;
 
 /**
@@ -34,7 +32,6 @@ public class MixerFrame extends javax.swing.JFrame {
 
     private Tools tools;
     private Tools.Tool tool;
-//    private BreakObserver bobs;
     private ImagePanel imagePanel;
     private BufferedImage image1, image2;
     private int[] im1buff, im2buff, outBuff;
@@ -48,10 +45,8 @@ public class MixerFrame extends javax.swing.JFrame {
         image2 = null;
         howMuchEffect = 255;
 
-//        bobs = new BreakObserver(false);
         imagePanel = new ImagePanel();
         initComponents();
-        //jScrollPane1.setViewportView(imagePanel);
 
         // Dodawanie narzedzi:
         for (final Entry<String, Tool> entry : tools.getAll()) {
@@ -59,7 +54,6 @@ public class MixerFrame extends javax.swing.JFrame {
             button.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-//                    tool.running = false;
                     tool = entry.getValue();
                     mixImages(true);
                 }
@@ -121,18 +115,7 @@ public class MixerFrame extends javax.swing.JFrame {
             return;
         }
 
-        //Dimension dim = new Dimension(Math.min(image1.getWidth(), image2.getWidth()), Math.min(image1.getHeight(), image2.getHeight()));
         tool.mixInBg(im1buff, im2buff, outBuff, width * height, howMuchEffect, imagePanel, imagePanel.getImage().getRaster(), width, height);
-        //WritableRaster outRaster = imagePanel.getImage().getRaster();
-
-        //outRaster.setDataElements(0, 0, width, height, outBuff);
-        //jScrollPane1.getViewport().setBounds(0, 0, Math.min(image1.getWidth(), image2.getWidth()), Math.min(image1.getHeight(), image2.getHeight()));
-        //jScrollPane1.re
-
-        //imagePanel.setMaximumSize(dim);
-        //imagePanel.setMinimumSize(dim);
-        //imagePanel.setSize(width, height);
-        //imagePanel.repaint();
     }
 
     /** This method is called from within the constructor to
@@ -217,9 +200,7 @@ public class MixerFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_image2ButtonActionPerformed
 
     private void howMuchSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_howMuchSliderStateChanged
-        // TODO add your handling code here:
         howMuchEffect = howMuchSlider.getValue();
-//        bobs.setOn(true);
         mixImages(false);
     }//GEN-LAST:event_howMuchSliderStateChanged
 
