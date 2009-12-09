@@ -80,6 +80,15 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="image1ButtonActionPerformed"/>
           </Events>
         </Component>
+        <Component class="javax.swing.JSlider" name="howMuchSlider">
+          <Properties>
+            <Property name="maximum" type="int" value="255"/>
+            <Property name="value" type="int" value="255"/>
+          </Properties>
+          <Events>
+            <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="howMuchSliderStateChanged"/>
+          </Events>
+        </Component>
         <Component class="javax.swing.JButton" name="image2Button">
           <Properties>
             <Property name="text" type="java.lang.String" value="Obrazek 2"/>

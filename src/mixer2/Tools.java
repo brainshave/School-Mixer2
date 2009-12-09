@@ -4,13 +4,17 @@
  */
 package mixer2;
 
+import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
+import java.awt.image.WritableRaster;
 import java.util.Date;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -30,32 +34,90 @@ public class Tools {
         }
     }
 
-    public abstract class Tool {
+    public abstract class Tool extends Thread {
 
-        public void mix(int[] pix1Buffer, int[] pix2Buffer, int[] outBuffer, int size) {
+        public boolean running;
+        private int[] buff1, buff2, buffOut;
+        private int size, howMuchEffect, width, height;
+        private Component objToRepaint;
+        private WritableRaster raster;
+
+        public Tool() {
+            running = true;
+            start();
+        }
+
+        public void mixInBg(int[] pix1Buffer, int[] pix2Buffer, int[] outBuffer,
+                int size, int howMuchEffect, Component objToRepaint,
+                WritableRaster raster, int width, int height) {
+            this.buff1 = pix1Buffer;
+            this.buff2 = pix2Buffer;
+            this.buffOut = outBuffer;
+            this.size = size;
+            this.howMuchEffect = howMuchEffect;
+            this.objToRepaint = objToRepaint;
+            this.width = width;
+            this.height = height;
+            this.raster = raster;
+
+            this.interrupt();
+        }
+
+        @Override
+        public void run() {
+            // przerwanie ew. dzialajacego watku, odpalenie z nowymi wartosciami
+            // roznica miedzy interrupted() i isInterupted()
+            while (running) {
+                try {
+                    Tool.sleep(1000);
+                } catch (InterruptedException ex) {
+                    do {
+                        int pixels = mix(buff1, buff2, buffOut, size, howMuchEffect);
+                        int lines = pixels/width;
+                        raster.setDataElements(0, 0, width, lines, buffOut);
+                        objToRepaint.repaint(0, 0, width, lines);
+                    } while (Tool.interrupted());
+                }
+            }
+        }
+
+        private int mix(int[] pix1Buffer, int[] pix2Buffer, int[] outBuffer, int size, int howMuchEffect) {
             long startT = new Date().getTime();
             int outpixel = 0;
             int inpixel1 = 0;
             int inpixel2 = 0;
             int tmp = 0;
             int offset = 0;
-            for (int i = 0; i < size; ++i) {
-                inpixel1 = pix1Buffer[i];
-                inpixel2 = pix2Buffer[i];
-                outpixel = 0;
-                for (offset = 0; offset < 25; offset += 8) {
-                    tmp = mixedVal((inpixel1 >> offset) & 0xff, (inpixel2 >> offset) & 0xff);
-                    if (tmp > 255) {
-                        tmp = 255;
-                    } else if (tmp < 0) {
-                        tmp = 0;
-                    }
-                    outpixel |= tmp << offset;
+            int k = 0, i = 0, end;
+            int step = 100000;
+            int incolor1, incolor1Rest;
+            while(k < size) {
+                if (this.isInterrupted()) {
+                    return i;
                 }
-                outBuffer[i] = outpixel;
+                i = k;
+                k+=step;
+                end = k < size ? k : size;
+                for (; i < end; ++i) {
+                    inpixel1 = pix1Buffer[i];
+                    inpixel2 = pix2Buffer[i];
+                    outpixel = 0;
+                    for (offset = 0; offset < 25; offset += 8) {
+                        incolor1 = (inpixel1 >> offset) & 0xff;
+                        tmp = (mixedVal(incolor1, (inpixel2 >> offset) & 0xff) * howMuchEffect + incolor1 * (255 - howMuchEffect)) >> 8;
+                        if (tmp > 255) {
+                            tmp = 255;
+                        } else if (tmp < 0) {
+                            tmp = 0;
+                        }
+                        outpixel |= tmp << offset;
+                    }
+                    outBuffer[i] = outpixel;
+                }
             }
             long endT = new Date().getTime();
             System.out.println("Czas: " + (endT - startT) + "ms dla " + size + " pikseli, srednio " + (((double) endT - startT) / size));
+            return size;
         }
 
         protected abstract int mixedVal(int a, int b);
